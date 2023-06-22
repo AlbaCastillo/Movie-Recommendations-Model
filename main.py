@@ -17,7 +17,7 @@ async def load_data():
 
 @app.get('/')
 async def read_root():
-    return {'Mi primera API. Dirígite a /docs'}
+    return {'Mi primera API. Dirígite a .../docs'}
 
 @app.get('/about/')
 async def about():
@@ -32,7 +32,7 @@ def cantidad_filmaciones_mes(mes:str):
   cantidad = len(estrenos['id'].unique())
   return {'mes':mes.capitalize(), 'cantidad':cantidad}
 
-@app.get('/cantidad_filmaciones_dia{dia}')
+@app.get('/cantidad_filmaciones_dia/{dia}')
 def cantidad_filmaciones_dia(dia:str):
   dia = dia.lower()
   dias = {'lunes': 'Monday', 'martes': 'Tuesday', 'miercoles': 'Wednesday', 'jueves': 'Thursday', 'viernes': 'Friday', 'sabado': 'Saturday', 'domingo': 'Sunday'}
