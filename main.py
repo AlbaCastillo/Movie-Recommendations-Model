@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 import pandas as pd 
 import numpy as np
+from fastapi.responses import JSONResponse
 
 app = FastAPI(title='Proyecto individual 1: Recomendacion de peliculas',
             description='API de datos y recomendaciones de películas')
@@ -23,14 +24,28 @@ async def read_root():
 async def about():
     return {'Proyecto individual 1: Recomendacion de peliculas'}
 
-@app.get('/cantidad_filmaciones_mes/{mes}')
+@app.get('/cantidad_filmaciones_mes/({mes})')
 def cantidad_filmaciones_mes(mes:str):
+  '''Se ingresa el mes en español y la funcion retorna la cantidad de peliculas que se estrenaron ese mes historicamente
+    ''' 
   mes = mes.lower()
-  meses = {'enero': 1, 'febrero': 2, 'marzo': 3, 'abril': 4, 'mayo': 5, 'junio': 6, 'julio': 7, 'agosto': 8, 'septiembre': 9, 'octubre': 10, 'noviembre': 11, 'diciembre': 12}
+  meses = {'enero': 1, 
+           'febrero': 2, 
+           'marzo': 3, 
+           'abril': 4, 
+           'mayo': 5, 
+           'junio': 6, 
+           'julio': 7, 
+           'agosto': 8, 
+           'septiembre': 9, 
+           'octubre': 10, 
+           'noviembre': 11, 
+           'diciembre': 12}
   mes_nro = meses.get(mes)
+  movies_final['release_date'] = pd.to_datetime(movies_final['release_date'])
   estrenos = movies_final[movies_final['release_date'].dt.month == mes_nro]
   cantidad = len(estrenos['id'].unique())
-  return {'mes':mes.capitalize(), 'cantidad':cantidad}
+  return {'mes':mes, 'cantidad':cantidad}
 
 @app.get('/cantidad_filmaciones_dia/{dia}')
 def cantidad_filmaciones_dia(dia:str):
