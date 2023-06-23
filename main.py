@@ -8,6 +8,7 @@ app = FastAPI(title='Proyecto individual 1: Recomendacion de peliculas',
 
 #http://127.0.0.1:8000
 
+credits_final = None
 
 @app.on_event("startup")
 async def load_data():
@@ -28,7 +29,7 @@ async def about():
 def cantidad_filmaciones_mes(mes:str):
   '''Se ingresa el mes en español y la funcion retorna la cantidad de peliculas que se estrenaron ese mes historicamente
     ''' 
-  mes = mes.lower()
+  mes = mes.replace(" ", "").lower()
   meses = {'enero': 1, 
            'febrero': 2, 
            'marzo': 3, 
@@ -45,16 +46,17 @@ def cantidad_filmaciones_mes(mes:str):
   movies_final['release_date'] = pd.to_datetime(movies_final['release_date'])
   estrenos = movies_final[movies_final['release_date'].dt.month == mes_nro]
   cantidad = len(estrenos['id'].unique())
-  return {'mes':mes, 'cantidad':cantidad}
+  return {'mes':str(mes), 'cantidad':str(cantidad)}
 
 @app.get('/cantidad_filmaciones_dia/{dia}')
 def cantidad_filmaciones_dia(dia:str):
-  dia = dia.lower()
+  dia = dia.replace(" ", "").lower()
   dias = {'lunes': 'Monday', 'martes': 'Tuesday', 'miercoles': 'Wednesday', 'jueves': 'Thursday', 'viernes': 'Friday', 'sabado': 'Saturday', 'domingo': 'Sunday'}
   dia_en = dias.get(dia)
+  movies_final['release_date'] = pd.to_datetime(movies_final['release_date'])
   estrenos = movies_final[movies_final['release_date'].dt.day_name() == dia_en]
   cantidad = len(estrenos['id'].unique())
-  return {'dia':dia.capitalize(), 'cantidad':cantidad}
+  return {'dia':str(dia.capitalize()), 'cantidad':str(cantidad)}
 
 @app.get('/score_titulo/{titulo}')
 def score_titulo(titulo:str):
@@ -65,7 +67,7 @@ def score_titulo(titulo:str):
   movie = movie_c['title'].iloc[0]
   year = movie_c['release_year'].iloc[0]
   popularity = movie_c['popularity'].iloc[0]
-  return {'titulo':movie, 'anio':year, 'popularidad':popularity}
+  return {'titulo': str(movie), 'anio': str(year), 'popularidad': str(popularity)}
 
 @app.get('/votos_titulo/{titulo}')
 def votos_titulo(titulo:str):
@@ -80,7 +82,7 @@ def votos_titulo(titulo:str):
   year = movie_c['release_year'].iloc[0]
   vote_count = movie_c['vote_count'].iloc[0]
   vote_average = movie_c['vote_average'].iloc[0]
-  return  {'titulo':movie, 'anio':year, 'voto_total':vote_count, 'voto_promedio':vote_average}
+  return  {'titulo': str(movie), 'anio': str(year), 'voto_total': str(vote_count), 'voto_promedio': str(vote_average)}
 
 @app.get('/get_actor/{nombre_actor}')
 def get_actor(nombre_actor:str):
@@ -92,10 +94,10 @@ def get_actor(nombre_actor:str):
   cantidad = len(filtered)
   return_movies = round(filtered_movies['return'].sum(), 3)
   if cantidad > 0:
-      average = round(return_movies / cantidad, 3)
+    average = round(return_movies / cantidad, 3)
   else:
-      average = 0
-  return {'actor':nombre_actor.title(), 'cantidad_filmaciones':cantidad, 'retorno_total':return_movies, 'retorno_promedio':average}
+    average = 0
+  return {'actor':str(nombre_actor.title()), 'cantidad_filmaciones': str(cantidad), 'retorno_total': str(return_movies), 'retorno_promedio':str(average)}
 
 @app.get('/get_director/{nombre_director}')
 def get_director(nombre_director:str):
@@ -111,6 +113,6 @@ def get_director(nombre_director:str):
   budget = ', '.join(filtered_movies['budget'].astype(str).apply(lambda x: str(round(float(x), 3))))
   revenue = ', '.join(filtered_movies['revenue'].astype(str).apply(lambda x: str(round(float(x), 3))))
 
-  return  {'director':nombre_director.title(), 'retorno_total_director':return_movies,
-    'peliculas':movies, 'anio':year, 'retorno_pelicula':return_movie,
-    'budget_pelicula':budget, 'revenue_pelicula':revenue}
+  return  {'director': str(nombre_director.title()), 'retorno_total_director': str(return_movies),
+    'peliculas': str(movies), 'anio': str(year), 'retorno_pelicula': str(return_movie),
+    'budget_pelicula': str(budget), 'revenue_pelicula': str(revenue)}
