@@ -29,7 +29,7 @@ async def load_data():
 
 @app.get('/')
 async def read_root():
-    return {'Mi primera API. Dirígite a .../docs'}
+    return {'API. Dirígite a .../docs'}
 
 @app.get('/about/')
 async def about():
@@ -60,6 +60,7 @@ def cantidad_filmaciones_mes(mes:str):
 
 @app.get('/cantidad_filmaciones_dia/{dia}')
 def cantidad_filmaciones_dia(dia:str):
+  '''Se ingresa un dia en ES, la funcion retorna la cantidad de peliculas que se estrenaron ese dia historicamente'''
   dia = dia.replace(" ", "").lower()
   dias = {'lunes': 'Monday', 'martes': 'Tuesday', 'miercoles': 'Wednesday', 'jueves': 'Thursday', 'viernes': 'Friday', 'sabado': 'Saturday', 'domingo': 'Sunday'}
   dia_en = dias.get(dia)
@@ -70,6 +71,7 @@ def cantidad_filmaciones_dia(dia:str):
 
 @app.get('/score_titulo/{titulo}')
 def score_titulo(titulo:str):
+  '''Se ingresa el titlo de una pelicula, la funcion devuelve el anio de estreno y la popularidad de la misma'''
   title = titulo.replace(" ", "").lower()
   movie_c = movies_final[movies_final['title'].str.replace(" ", "").str.lower().str.contains(title)].drop_duplicates(subset='id')
   if movie_c.empty:
@@ -81,6 +83,7 @@ def score_titulo(titulo:str):
 
 @app.get('/votos_titulo/{titulo}')
 def votos_titulo(titulo:str):
+  '''Se ingresa el titlo de una pelicula, la funcion devuelve el anio de estreno con los votos obtenidos'''
   title = titulo.replace(" ", "").lower()
   movie_c = movies_final[movies_final['title'].str.replace(" ", "").str.lower().str.contains(title)].drop_duplicates(subset='id')
   if movie_c.empty:
@@ -96,6 +99,7 @@ def votos_titulo(titulo:str):
 
 @app.get('/get_actor/{nombre_actor}')
 def get_actor(nombre_actor:str):
+  '''Se ingresa el nombre de un actor, la funcion devuelve la cantidad de peliculas que filmo y el retorno de las mismas'''
   actor = nombre_actor.replace(" ", "").lower()
   credits_final.dropna(subset=['cast_name'], inplace=True)
   mask = credits_final['cast_name'].str.replace(" ", "").str.lower().str.contains(actor)
@@ -112,6 +116,7 @@ def get_actor(nombre_actor:str):
 
 @app.get('/get_director/{nombre_director}')
 def get_director(nombre_director:str):
+  ''' Se ingresa el nombre del director, la funcion retorna el exito del mismo medido en retorno total, e individual por cada pelicula'''
   director = nombre_director.replace(" ", "").lower()
   credits_final.dropna(subset=['director'], inplace=True)
   mask = credits_final['director'].str.replace(" ", "").str.lower().str.contains(director)
