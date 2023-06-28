@@ -17,7 +17,7 @@ async def load_data():
     global credits_final, movies_final, final_nn
     # Carga los datos
     credits_final = pd.read_csv('credits_final.csv')
-    movies_final = pd.read_csv('movies_final.csv')
+    movies_final = pd.read_csv('movies_final_op.csv')
     final_nn = pd.read_csv('final_nn.csv')
 
 @app.get('/')
