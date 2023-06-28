@@ -2,6 +2,8 @@ from fastapi import FastAPI
 import pandas as pd 
 import numpy as np
 from fastapi.responses import JSONResponse
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.neighbors import NearestNeighbors
 
 app = FastAPI(title='Proyecto individual 1: Recomendacion de peliculas',
             description='API de datos y recomendaciones de películas')
@@ -12,10 +14,11 @@ credits_final = None
 
 @app.on_event("startup")
 async def load_data():
-    global credits_final, movies_final
+    global credits_final, movies_final, final_nn
     # Carga los datos
     credits_final = pd.read_csv('credits_final.csv')
     movies_final = pd.read_csv('movies_final.csv')
+    final_nn = pd.read_csv('final_nn.csv')
 
 @app.get('/')
 async def read_root():
@@ -87,6 +90,7 @@ def votos_titulo(titulo:str):
 @app.get('/get_actor/{nombre_actor}')
 def get_actor(nombre_actor:str):
   actor = nombre_actor.replace(" ", "").lower()
+  credits_final.dropna(subset=['cast_name'], inplace=True)
   mask = credits_final['cast_name'].str.replace(" ", "").str.lower().str.contains(actor)
   # Filtrar el DataFrame para mostrar solo las filas donde se encontró el nombre
   filtered = credits_final[mask]
@@ -102,6 +106,7 @@ def get_actor(nombre_actor:str):
 @app.get('/get_director/{nombre_director}')
 def get_director(nombre_director:str):
   director = nombre_director.replace(" ", "").lower()
+  credits_final.dropna(subset=['director'], inplace=True)
   mask = credits_final['director'].str.replace(" ", "").str.lower().str.contains(director)
   # Filtrar el DataFrame para mostrar solo las filas donde se encontró el nombre
   filtered = credits_final[mask]
