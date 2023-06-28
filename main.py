@@ -14,11 +14,18 @@ credits_final = None
 
 @app.on_event("startup")
 async def load_data():
-    global credits_final, movies_final, final_nn
+    global credits_final, movies_final, final_nn, vectorizer, tfidf_matrix, nn
     # Carga los datos
     credits_final = pd.read_csv('credits_final.csv')
     movies_final = pd.read_csv('movies_final_op.csv')
     final_nn = pd.read_csv('final_nn.csv')
+
+    # Creación de un vectorizador TF-IDF para la columna 'description'
+    vectorizer = TfidfVectorizer(stop_words='english')
+    tfidf_matrix = vectorizer.fit_transform(final_nn['description'])
+    # Creamos un modelo para encontrar los vecinos mas cercanos
+    nn = NearestNeighbors(metric='cosine', algorithm='auto')
+    nn.fit(tfidf_matrix)
 
 @app.get('/')
 async def read_root():
@@ -121,3 +128,16 @@ def get_director(nombre_director:str):
   return  {'director': str(nombre_director.title()), 'retorno_total_director': str(return_movies),
     'peliculas': str(movies), 'anio': str(year), 'retorno_pelicula': str(return_movie),
     'budget_pelicula': str(budget), 'revenue_pelicula': str(revenue)}
+
+@app.get('/recomendacion/{titulo}')
+def recomendacion(title:str):
+    '''Ingresas un nombre de pelicula y te recomienda las similares en una lista'''
+    title = title.replace(" ", "").lower()
+    movie_index = final_nn[final_nn['title'].str.replace(" ", "").str.lower().str.contains(title)].index[0]
+    neighbors = nn.kneighbors(tfidf_matrix[movie_index], n_neighbors=6)
+    # Obtener los índices de las películas más similares
+    indices = neighbors[1][0]
+
+    # Obtener los títulos de las películas más similares
+    similar_movie_titles = final_nn.iloc[indices]['title']
+    return {'lista recomendada': similar_movie_titles.tolist()}
